@@ -13,18 +13,18 @@ def to_float(value, default=0.0):
 
 def judge_bmi(bmi):
     if bmi <= 0:
-        return ""
+        return "", ""
     if bmi < 18.5:
-        return "低体重"
+        return "低体重", "🍃"
     if bmi < 25:
-        return "標準"
+        return "標準", "✅"
     if bmi < 30:
-        return "肥満（1度）"
+        return "肥満（1度）", "⚠️"
     if bmi < 35:
-        return "肥満（2度）"
+        return "肥満（2度）", "🟠"
     if bmi < 40:
-        return "肥満（3度）"
-    return "肥満（4度）"
+        return "肥満（3度）", "🔴"
+    return "肥満（4度）", "🚨"
 
 
 def application(environ, start_response):
@@ -49,13 +49,14 @@ def application(environ, start_response):
 
     bmi_text = ""
     judge_text = ""
+    judge_icon = ""
     message = "身長(cm) と体重(kg) を入力してください。"
 
     if height_cm > 0 and weight_kg > 0:
         height_m = height_cm / 100.0
         bmi = weight_kg / (height_m * height_m)
         bmi_text = f"{bmi:.2f}"
-        judge_text = judge_bmi(bmi)
+        judge_text, judge_icon = judge_bmi(bmi)
         message = "BMIを計算しました。"
     elif height_cm_raw or weight_kg_raw:
         message = "入力値が不正な場合は 0 として扱います。身長と体重が 0 より大きい値になるよう入力してください。"
@@ -64,7 +65,7 @@ def application(environ, start_response):
 <html lang="ja">
 <head>
     <meta charset="utf-8">
-    <title>BMI計算機</title>
+    <title>BMI計算機：Kazu</title>
     <style>
         body {{
             margin: 0;
@@ -155,7 +156,7 @@ def application(environ, start_response):
 <body>
     <div class="wrap">
         <div class="card">
-            <h1>BMI計算機</h1>
+            <h1>BMI計算機：Kazu</h1>
             <p class="desc">身長と体重を入力すると、BMIと評価を表示します。</p>
 
             <form method="post" action="/">
@@ -196,7 +197,7 @@ def application(environ, start_response):
             <div class="result">
                 <div class="result-item"><strong>状態:</strong> {html.escape(message)}</div>
                 <div class="result-item"><strong>BMI:</strong> {html.escape(bmi_text) if bmi_text else "-"}</div>
-                <div class="result-item"><strong>評価:</strong> {html.escape(judge_text) if judge_text else "-"}</div>
+                <div class="result-item"><strong>評価:</strong> {html.escape(judge_icon)} {html.escape(judge_text) if judge_text else "-"}</div>
                 <div class="note">BMI = 体重(kg) ÷ 身長(m) ÷ 身長(m)</div>
             </div>
 
